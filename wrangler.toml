@@ -1,0 +1,26 @@
+name = "cloudflare-social-app"
+main = "worker.js"
+compatibility_date = "2024-09-23"
+
+# Direct Assets Serving (Sintaks Wrangler 4.x+)
+[assets]
+directory = "./public"
+
+# 1. Cloudflare D1 Database Binding
+[[d1_databases]]
+binding = "DB"
+database_name = "social-db"
+database_id = "PASTE_D1_DATABASE_ID_DISINI"
+
+# 2. Cloudflare R2 Bucket Binding
+[[r2_buckets]]
+binding = "BUCKET"
+bucket_name = "social-media-media"
+
+# 3. Cloudflare Workers AI Binding
+[ai]
+binding = "AI"
+
+# 4. Cron Triggers (Otomatisasi Bot setiap 6 jam)
+[triggers]
+crons = ["0 */6 * * *"]
