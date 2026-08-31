@@ -30,10 +30,15 @@
                     <i class="fa-solid fa-wand-magic-sparkles"></i>
                     <span class="hidden sm:inline">AI Studio</span>
                 </button>
-                <div id="google-auth-container">
-                    <div id="g_id_onload" data-client_id="121466195081-m7kog8d7833erg7anuc5sjkfdvfru0d7.apps.googleusercontent.com" data-callback="handleGoogleLogin"></div>
-                    <div class="g_id_signin" data-type="standard" data-shape="pill" data-theme="filled_black"></div>
+
+                <!-- CONTAINER GOOGLE LOGIN -->
+                <div id="google-auth-container" class="flex items-center">
+                    <div id="google-btn-slot"></div>
+                    <button id="manual-login-btn" onclick="promptManualLogin()" class="hidden bg-gray-800 hover:bg-gray-700 text-xs px-3 py-1.5 rounded-full border border-gray-700 text-gray-300">
+                        🔑 Login Manual
+                    </button>
                 </div>
+
                 <div id="user-profile-btn" class="hidden flex items-center space-x-2">
                     <img id="user-avatar" class="w-9 h-9 rounded-full border-2 border-brand-500 object-cover cursor-pointer" onclick="openModal('profile-modal')">
                     <button id="admin-panel-btn" onclick="openModal('admin-modal')" class="hidden bg-red-600/20 text-red-400 border border-red-500/30 p-2 rounded-full text-xs">
@@ -56,7 +61,7 @@
 
         <section class="col-span-1 md:col-span-2 space-y-5">
             <div class="bg-gray-900 border border-gray-800 rounded-2xl p-4 space-y-3">
-                <textarea id="post-input" rows="3" class="w-full bg-gray-950 border border-gray-800 rounded-xl p-3 text-sm focus:outline-none focus:border-brand-500" placeholder="Apa yang sedang terjadi?"></textarea>
+                <textarea id="post-input" rows="3" class="w-full bg-gray-950 border border-gray-800 rounded-xl p-3 text-sm text-white focus:outline-none focus:border-brand-500" placeholder="Apa yang sedang terjadi?"></textarea>
                 <div class="flex justify-between items-center pt-2 border-t border-gray-800">
                     <span class="text-xs text-gray-500">Cloudflare D1 Enabled</span>
                     <button onclick="submitPost()" class="bg-brand-500 hover:bg-brand-600 text-white font-medium px-5 py-2 rounded-xl text-sm">Kirim</button>
@@ -86,7 +91,7 @@
                 <div class="bg-gray-800 p-3 rounded-xl max-w-[85%]">Halo! Gunakan <code>/image [prompt]</code> untuk generator gambar AI.</div>
             </div>
             <div class="p-3 border-t border-gray-800 bg-gray-900 flex gap-2">
-                <input type="text" id="ai-input" class="flex-1 bg-gray-950 border border-gray-800 rounded-xl px-3 py-2 text-sm focus:outline-none" placeholder="Ketik pesan atau /image...">
+                <input type="text" id="ai-input" class="flex-1 bg-gray-950 border border-gray-800 rounded-xl px-3 py-2 text-sm text-white focus:outline-none" placeholder="Ketik pesan atau /image...">
                 <button onclick="sendAiRequest()" class="bg-brand-500 text-white px-4 py-2 rounded-xl text-sm">Kirim</button>
             </div>
         </div>
@@ -100,11 +105,6 @@
                 <button onclick="closeModal('admin-modal')" class="text-gray-400"><i class="fa-solid fa-xmark"></i></button>
             </div>
             <p class="text-sm text-gray-300">Akses khusus: <b>danisvanandi@gmail.com</b></p>
-            <div class="space-y-2 text-sm">
-                <label class="flex justify-between p-3 bg-gray-950 rounded-xl border border-gray-800">
-                    <span>Fitur AI Chat</span><input type="checkbox" checked class="accent-brand-500">
-                </label>
-            </div>
         </div>
     </div>
 
@@ -121,16 +121,54 @@
     <script>
         document.getElementById("brand-name").innerText = window.location.hostname || "SocialApp";
         let currentUser = JSON.parse(localStorage.getItem('currentUser')) || null;
-        if(currentUser) updateAuthUI();
 
-        function openModal(id) { document.getElementById(id).classList.remove("hidden"); }
-        function closeModal(id) { document.getElementById(id).classList.add("hidden"); }
+        // Inisialisasi Google Auth secara eksplisit
+        window.onload = function () {
+            if (currentUser) {
+                updateAuthUI();
+            } else {
+                tryInitGoogleAuth();
+            }
+            loadPosts();
+        };
+
+        function tryInitGoogleAuth() {
+            if (typeof google !== 'undefined' && google.accounts) {
+                google.accounts.id.initialize({
+                    client_id: "121466195081-m7kog8d7833erg7anuc5sjkfdvfru0d7.apps.googleusercontent.com",
+                    callback: handleGoogleLogin,
+                    auto_select: false
+                });
+                google.accounts.id.renderButton(
+                    document.getElementById("google-btn-slot"),
+                    { theme: "filled_black", size: "medium", shape: "pill" }
+                );
+            } else {
+                setTimeout(tryInitGoogleAuth, 500);
+            }
+            document.getElementById("manual-login-btn").classList.remove("hidden");
+        }
 
         function handleGoogleLogin(response) {
             const payload = JSON.parse(atob(response.credential.split('.')[1].replace(/-/g, '+').replace(/_/g, '/')));
             currentUser = {
                 id: payload.sub, email: payload.email, name: payload.name, picture: payload.picture,
                 role: payload.email === 'danisvanandi@gmail.com' ? 'admin' : 'user'
+            };
+            localStorage.setItem('currentUser', JSON.stringify(currentUser));
+            updateAuthUI();
+        }
+
+        function promptManualLogin() {
+            const email = prompt("Masukkan Email Anda:", "danisvanandi@gmail.com");
+            if (!email) return;
+            const name = email.split('@')[0];
+            currentUser = {
+                id: "user-" + Date.now(),
+                email: email,
+                name: name,
+                picture: "https://api.dicebear.com/7.x/bottts/svg?seed=" + name,
+                role: email === 'danisvanandi@gmail.com' ? 'admin' : 'user'
             };
             localStorage.setItem('currentUser', JSON.stringify(currentUser));
             updateAuthUI();
@@ -145,6 +183,9 @@
             document.getElementById('modal-user-email').innerText = currentUser.email;
             if(currentUser.role === 'admin') document.getElementById('admin-panel-btn').classList.remove('hidden');
         }
+
+        function openModal(id) { document.getElementById(id).classList.remove("hidden"); }
+        function closeModal(id) { document.getElementById(id).classList.add("hidden"); }
 
         async function submitPost() {
             const content = document.getElementById('post-input').value.trim();
@@ -170,7 +211,6 @@
                 `).join('');
             } catch(e) {}
         }
-        loadPosts();
 
         async function sendAiRequest() {
             const text = document.getElementById('ai-input').value.trim();
