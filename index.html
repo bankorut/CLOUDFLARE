@@ -133,8 +133,8 @@
     </nav>
 
     <!-- MODAL: AI CHATBOT & GENERATOR -->
-    <div id="ai-modal" class="hidden fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4">
-        <div class="bg-gray-900 border border-gray-800 w-full max-w-lg rounded-3xl overflow-hidden flex flex-col h-[82vh] shadow-2xl">
+    <div id="ai-modal" class="modal-backdrop hidden fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4" onclick="closeModalOnBackdrop(event, 'ai-modal')">
+        <div class="bg-gray-900 border border-gray-800 w-full max-w-lg rounded-3xl overflow-hidden flex flex-col h-[82vh] shadow-2xl" onclick="event.stopPropagation()">
             <div class="p-4 border-b border-gray-800 flex justify-between items-center bg-gray-900/90">
                 <div class="flex items-center space-x-3">
                     <div class="w-8 h-8 rounded-xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-400">
@@ -145,7 +145,7 @@
                         <p class="text-[10px] text-gray-400">Llama 3.3 70B & SDXL Image Generator</p>
                     </div>
                 </div>
-                <button onclick="closeModal('ai-modal')" class="text-gray-400 hover:text-white p-2"><i class="fa-solid fa-xmark text-lg"></i></button>
+                <button onclick="closeModal('ai-modal')" class="text-gray-400 hover:text-white p-2"><i class="fa-solid fa-xmark text-xl"></i></button>
             </div>
             <div id="ai-chat-messages" class="flex-1 p-4 overflow-y-auto space-y-3 bg-gray-950/90 text-sm">
                 <div class="bg-gray-800/80 text-gray-300 p-3.5 rounded-2xl max-w-[85%] border border-gray-700/50">
@@ -162,11 +162,11 @@
     </div>
 
     <!-- MODAL: UPLOAD STORY -->
-    <div id="story-upload-modal" class="hidden fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4">
-        <div class="bg-gray-900 border border-gray-800 w-full max-w-sm rounded-3xl p-5 space-y-4 shadow-2xl">
+    <div id="story-upload-modal" class="modal-backdrop hidden fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4" onclick="closeModalOnBackdrop(event, 'story-upload-modal')">
+        <div class="bg-gray-900 border border-gray-800 w-full max-w-sm rounded-3xl p-5 space-y-4 shadow-2xl" onclick="event.stopPropagation()">
             <div class="flex justify-between items-center border-b border-gray-800 pb-3">
                 <h3 class="font-bold text-sm text-gray-200">Buat Cerita 24 Jam</h3>
-                <button onclick="closeModal('story-upload-modal')" class="text-gray-400"><i class="fa-solid fa-xmark"></i></button>
+                <button onclick="closeModal('story-upload-modal')" class="text-gray-400 hover:text-white p-1"><i class="fa-solid fa-xmark text-xl"></i></button>
             </div>
             <input type="file" id="story-file-input" accept="image/*" class="w-full bg-gray-950 border border-gray-800 p-2 rounded-xl text-xs text-gray-300">
             <input type="text" id="story-caption-input" placeholder="Tulis caption..." class="w-full bg-gray-950 border border-gray-800 rounded-xl p-2.5 text-xs text-white focus:outline-none focus:border-brand-500">
@@ -175,27 +175,25 @@
     </div>
 
     <!-- MODAL: SUPER ADMIN PANEL -->
-    <div id="admin-modal" class="hidden fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4">
-        <div class="bg-gray-900 border border-gray-800 w-full max-w-2xl rounded-3xl p-6 space-y-5 shadow-2xl max-h-[85vh] overflow-y-auto">
+    <div id="admin-modal" class="modal-backdrop hidden fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4" onclick="closeModalOnBackdrop(event, 'admin-modal')">
+        <div class="bg-gray-900 border border-gray-800 w-full max-w-2xl rounded-3xl p-6 space-y-5 shadow-2xl max-h-[85vh] overflow-y-auto" onclick="event.stopPropagation()">
             <div class="flex justify-between items-center border-b border-gray-800 pb-3">
                 <h3 class="font-bold text-red-400 flex items-center gap-2"><i class="fa-solid fa-user-shield"></i> Owner Super Admin Panel</h3>
-                <button onclick="closeModal('admin-modal')" class="text-gray-400"><i class="fa-solid fa-xmark"></i></button>
+                <button onclick="closeModal('admin-modal')" class="text-gray-400 hover:text-white p-1"><i class="fa-solid fa-xmark text-xl"></i></button>
             </div>
             
-            <!-- TOGGLE FITUR -->
             <div class="space-y-3">
                 <h4 class="font-semibold text-xs text-gray-400 uppercase tracking-wider">Kontrol Program & Fitur</h4>
                 <div class="grid grid-cols-2 gap-3 text-xs">
                     <label class="flex justify-between items-center p-3 bg-gray-950 border border-gray-800 rounded-2xl">
-                        <span>AI Chatbot</span><input type="checkbox" id="admin-toggle-ai" checked onchange="saveAdminSettings()" class="accent-brand-500">
+                        <span>AI Chatbot</span><input type="checkbox" id="admin-toggle-ai" checked class="accent-brand-500">
                     </label>
                     <label class="flex justify-between items-center p-3 bg-gray-950 border border-gray-800 rounded-2xl">
-                        <span>Bot Otomatis</span><input type="checkbox" id="admin-toggle-bot" checked onchange="saveAdminSettings()" class="accent-brand-500">
+                        <span>Bot Otomatis</span><input type="checkbox" id="admin-toggle-bot" checked class="accent-brand-500">
                     </label>
                 </div>
             </div>
 
-            <!-- MANAJEMEN BOT -->
             <div class="space-y-3">
                 <div class="flex justify-between items-center">
                     <h4 class="font-semibold text-xs text-gray-400 uppercase tracking-wider">Kelola Bot Otomatis</h4>
@@ -204,7 +202,6 @@
                 <div id="admin-bots-list" class="space-y-2 text-xs"></div>
             </div>
 
-            <!-- KELOLA USER -->
             <div class="space-y-3">
                 <h4 class="font-semibold text-xs text-gray-400 uppercase tracking-wider">Kelola Akun Pengguna</h4>
                 <div id="admin-users-list" class="space-y-2 text-xs"></div>
@@ -212,9 +209,13 @@
         </div>
     </div>
 
-    <!-- MODAL: PROFIL & AKUN -->
-    <div id="profile-modal" class="hidden fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4">
-        <div class="bg-gray-900 border border-gray-800 w-full max-w-sm rounded-3xl p-6 space-y-4 text-center shadow-2xl">
+    <!-- MODAL: PROFIL & AKUN (FIXED WITH CLOSE BUTTON) -->
+    <div id="profile-modal" class="modal-backdrop hidden fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4" onclick="closeModalOnBackdrop(event, 'profile-modal')">
+        <div class="bg-gray-900 border border-gray-800 w-full max-w-sm rounded-3xl p-6 space-y-4 text-center shadow-2xl relative" onclick="event.stopPropagation()">
+            <div class="flex justify-between items-center border-b border-gray-800 pb-3">
+                <h3 class="font-bold text-sm text-gray-200">Profil Saya</h3>
+                <button onclick="closeModal('profile-modal')" class="text-gray-400 hover:text-white p-1 text-lg"><i class="fa-solid fa-xmark"></i></button>
+            </div>
             <img id="modal-user-avatar" class="w-20 h-20 rounded-full mx-auto border-4 border-brand-500 object-cover shadow-xl">
             <div>
                 <h4 id="modal-user-name" class="font-bold text-lg"></h4>
@@ -240,6 +241,12 @@
             loadPosts();
             loadStories();
         };
+
+        function openModal(id) { document.getElementById(id).classList.remove("hidden"); }
+        function closeModal(id) { document.getElementById(id).classList.add("hidden"); }
+        function closeModalOnBackdrop(e, id) {
+            if (e.target.id === id) closeModal(id);
+        }
 
         function tryInitGoogleAuth() {
             if (typeof google !== 'undefined' && google.accounts) {
@@ -299,9 +306,6 @@
             document.getElementById('modal-user-role').innerText = currentUser.role === 'admin' ? 'Super Admin / Owner' : 'Standard User';
             if(currentUser.role === 'admin') document.getElementById('admin-panel-btn').classList.remove('hidden');
         }
-
-        function openModal(id) { document.getElementById(id).classList.remove("hidden"); }
-        function closeModal(id) { document.getElementById(id).classList.add("hidden"); }
 
         function previewPostImage(input) {
             if (input.files && input.files[0]) {
