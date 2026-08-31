@@ -8,65 +8,50 @@
     <script>
         tailwind.config = {
             darkMode: 'class',
-            theme: {
-                extend: {
-                    colors: {
-                        brand: {
-                            500: '#f97316',
-                            600: '#ea580c',
-                            700: '#c2410c'
-                        }
-                    }
-                }
-            }
+            theme: { extend: { colors: { brand: { 500: '#f97316', 600: '#ea580c', 700: '#c2410c' } } } }
         }
     </script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <script src="https://accounts.google.com/gsi/client" async defer></script>
     <style>
-        .glass { background: rgba(17, 24, 39, 0.75); backdrop-filter: blur(12px); }
+        .glass { background: rgba(17, 24, 39, 0.85); backdrop-filter: blur(12px); }
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
     </style>
 </head>
-<body class="bg-gray-950 text-gray-100 min-h-screen flex flex-col font-sans selection:bg-brand-500 selection:text-white pb-20 md:pb-0">
+<body class="bg-gray-950 text-gray-100 min-h-screen flex flex-col font-sans pb-20 md:pb-0">
 
-    <!-- NAVIGATION BAR -->
-    <header class="sticky top-0 z-40 glass border-b border-gray-800/80 px-4 py-3 transition-all">
+    <!-- HEADER NAVIGATION -->
+    <header class="sticky top-0 z-40 glass border-b border-gray-800/80 px-4 py-3">
         <div class="max-w-6xl mx-auto flex items-center justify-between">
             <div class="flex items-center space-x-3">
                 <div class="w-10 h-10 rounded-2xl bg-gradient-to-tr from-brand-500 via-amber-500 to-yellow-400 flex items-center justify-center text-white font-black shadow-lg shadow-brand-500/20">
                     <i class="fa-solid fa-bolt text-xl"></i>
                 </div>
                 <div>
-                    <h1 id="brand-name" class="text-xl font-black tracking-tight bg-gradient-to-r from-white via-gray-200 to-gray-400 bg-clip-text text-transparent">
-                        SocialApp
-                    </h1>
+                    <h1 id="brand-name" class="text-xl font-black tracking-tight bg-gradient-to-r from-white via-gray-200 to-gray-400 bg-clip-text text-transparent">SocialApp</h1>
                     <p class="text-[10px] text-gray-400 font-mono flex items-center gap-1">
-                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span> Cloudflare Cloud
+                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span> Cloudflare Ecosystem
                     </p>
                 </div>
             </div>
 
-            <div class="flex items-center space-x-2 sm:space-x-3">
-                <button onclick="openModal('ai-modal')" class="flex items-center space-x-2 bg-gradient-to-r from-brand-500/10 to-amber-500/10 hover:from-brand-500/20 hover:to-amber-500/20 text-brand-500 px-3.5 py-2 rounded-xl text-xs sm:text-sm font-semibold border border-brand-500/30 transition-all shadow-sm">
+            <div class="flex items-center space-x-2">
+                <button onclick="openModal('ai-modal')" class="flex items-center space-x-2 bg-gradient-to-r from-brand-500/10 to-amber-500/10 text-brand-500 px-3.5 py-2 rounded-xl text-xs sm:text-sm font-semibold border border-brand-500/30 hover:bg-brand-500/20 transition">
                     <i class="fa-solid fa-wand-magic-sparkles text-amber-400"></i>
                     <span>AI Studio</span>
                 </button>
 
                 <div id="google-auth-container" class="flex items-center gap-2">
                     <div id="google-btn-slot"></div>
-                    <button onclick="promptManualLogin()" class="bg-gray-900 hover:bg-gray-800 text-xs px-3 py-2 rounded-xl border border-gray-800 text-gray-300 font-medium transition">
-                        🔑 Login
-                    </button>
+                    <button onclick="promptManualLogin()" class="bg-gray-900 text-xs px-3 py-2 rounded-xl border border-gray-800 text-gray-300 font-medium hover:bg-gray-800">🔑 Login</button>
                 </div>
 
                 <div id="user-profile-btn" class="hidden flex items-center space-x-2">
-                    <button onclick="openModal('profile-modal')" class="relative group">
-                        <img id="user-avatar" class="w-9 h-9 rounded-full border-2 border-brand-500 object-cover shadow-md group-hover:scale-105 transition">
-                        <span class="absolute bottom-0 right-0 w-2.5 h-2.5 bg-emerald-500 border-2 border-gray-950 rounded-full"></span>
+                    <button onclick="openModal('profile-modal')" class="relative">
+                        <img id="user-avatar" class="w-9 h-9 rounded-full border-2 border-brand-500 object-cover">
                     </button>
-                    <button id="admin-panel-btn" onclick="openModal('admin-modal')" class="hidden bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/30 p-2 rounded-xl text-xs transition" title="Super Admin Panel">
+                    <button id="admin-panel-btn" onclick="openAdminModal()" class="hidden bg-red-500/10 text-red-400 border border-red-500/30 p-2 rounded-xl text-xs hover:bg-red-500/20" title="Super Admin Panel">
                         <i class="fa-solid fa-user-shield"></i>
                     </button>
                 </div>
@@ -77,87 +62,64 @@
     <!-- MAIN BODY -->
     <main class="max-w-6xl mx-auto w-full flex-1 grid grid-cols-1 md:grid-cols-4 gap-6 p-4">
         
-        <!-- LEFT SIDEBAR (Desktop Navigation) -->
+        <!-- LEFT SIDEBAR -->
         <aside class="hidden md:block col-span-1 space-y-4">
             <div class="bg-gray-900/60 border border-gray-800/80 rounded-3xl p-4 space-y-2 sticky top-20 glass">
-                <a href="#" class="flex items-center space-x-3 text-brand-500 bg-brand-500/10 font-bold p-3 rounded-2xl border border-brand-500/20">
-                    <i class="fa-solid fa-house w-5 text-center"></i><span>Beranda</span>
-                </a>
-                <a href="#" onclick="openModal('ai-modal')" class="flex items-center space-x-3 text-gray-400 hover:text-white hover:bg-gray-800/50 p-3 rounded-2xl transition">
-                    <i class="fa-solid fa-robot w-5 text-center text-amber-400"></i><span>AI Studio 3.3</span>
-                </a>
-                <a href="#" onclick="openModal('profile-modal')" class="flex items-center space-x-3 text-gray-400 hover:text-white hover:bg-gray-800/50 p-3 rounded-2xl transition">
-                    <i class="fa-solid fa-user w-5 text-center"></i><span>Profil & Pengaturan</span>
-                </a>
+                <a href="#" class="flex items-center space-x-3 text-brand-500 bg-brand-500/10 font-bold p-3 rounded-2xl border border-brand-500/20"><i class="fa-solid fa-house w-5"></i><span>Beranda</span></a>
+                <a href="#" onclick="openModal('ai-modal')" class="flex items-center space-x-3 text-gray-400 hover:text-white p-3 rounded-2xl"><i class="fa-solid fa-robot w-5 text-amber-400"></i><span>AI Studio 3.3</span></a>
+                <a href="#" onclick="openModal('profile-modal')" class="flex items-center space-x-3 text-gray-400 hover:text-white p-3 rounded-2xl"><i class="fa-solid fa-user w-5"></i><span>Profil & Pengaturan</span></a>
             </div>
         </aside>
 
-        <!-- CENTER CONTENT (Stories & Feed) -->
-        <section class="col-span-1 md:col-span-2 space-y-6">
+        <!-- CENTER FEED -->
+        <section class="col-span-1 md:col-span-2 space-y-5">
             
-            <!-- STORIES BAR -->
+            <!-- STORY BAR -->
             <div class="bg-gray-900/60 border border-gray-800/80 rounded-3xl p-3.5 overflow-x-auto no-scrollbar flex space-x-4 glass">
-                <div onclick="alert('Fitur upload story sedang aktif!')" class="flex-shrink-0 w-16 text-center cursor-pointer group">
-                    <div class="w-14 h-14 rounded-2xl bg-gray-950 border-2 border-dashed border-brand-500/60 flex items-center justify-center text-brand-500 mx-auto group-hover:border-brand-500 group-hover:scale-105 transition">
+                <div onclick="openModal('story-upload-modal')" class="flex-shrink-0 w-16 text-center cursor-pointer group">
+                    <div class="w-14 h-14 rounded-2xl bg-gray-950 border-2 border-dashed border-brand-500/60 flex items-center justify-center text-brand-500 mx-auto group-hover:border-brand-500 transition">
                         <i class="fa-solid fa-plus text-lg"></i>
                     </div>
-                    <span class="text-[11px] text-gray-400 mt-1.5 block font-medium truncate">Buat Story</span>
+                    <span class="text-[11px] text-gray-400 mt-1.5 block font-medium truncate">Tambah Story</span>
                 </div>
-                <div id="stories-list" class="flex space-x-4">
-                    <div class="flex-shrink-0 w-16 text-center cursor-pointer">
-                        <div class="w-14 h-14 rounded-2xl p-0.5 bg-gradient-to-tr from-brand-500 to-amber-500 mx-auto">
-                            <img src="https://api.dicebear.com/7.x/bottts/svg?seed=Cloudflare" class="w-full h-full rounded-[14px] bg-gray-900 object-cover">
-                        </div>
-                        <span class="text-[11px] text-gray-300 mt-1.5 block font-medium truncate">AI Bot</span>
-                    </div>
-                </div>
+                <div id="stories-list" class="flex space-x-4"></div>
             </div>
 
-            <!-- CREATE POST BOX -->
+            <!-- POST FORM -->
             <div class="bg-gray-900/60 border border-gray-800/80 rounded-3xl p-4 space-y-3 glass shadow-xl">
                 <div class="flex items-start space-x-3">
                     <img id="post-user-avatar" src="https://api.dicebear.com/7.x/bottts/svg?seed=User" class="w-10 h-10 rounded-full border border-gray-700 object-cover">
-                    <textarea id="post-input" rows="3" class="w-full bg-gray-950/80 border border-gray-800 rounded-2xl p-3 text-sm text-gray-100 placeholder-gray-500 focus:outline-none focus:border-brand-500 transition resize-none" placeholder="Apa yang ingin Anda bagikan hari ini?"></textarea>
+                    <textarea id="post-input" rows="3" class="w-full bg-gray-950/80 border border-gray-800 rounded-2xl p-3 text-sm text-gray-100 placeholder-gray-500 focus:outline-none focus:border-brand-500 resize-none" placeholder="Apa yang ingin Anda bagikan hari ini?"></textarea>
+                </div>
+                <div id="post-preview-box" class="hidden relative">
+                    <img id="post-preview-img" class="max-h-48 rounded-2xl w-full object-cover border border-gray-800">
+                    <button onclick="clearPostImage()" class="absolute top-2 right-2 bg-gray-900/80 text-white rounded-full p-1 text-xs hover:bg-red-600"><i class="fa-solid fa-xmark"></i></button>
                 </div>
                 <div class="flex items-center justify-between border-t border-gray-800/80 pt-3">
-                    <div class="flex space-x-2 text-gray-400">
-                        <button onclick="document.getElementById('post-input').focus()" class="p-2 hover:bg-gray-800 rounded-xl transition text-brand-500">
-                            <i class="fa-solid fa-font text-sm"></i>
-                        </button>
-                        <button onclick="setAiInput('/image Pemandangan indah')" class="p-2 hover:bg-gray-800 rounded-xl transition text-amber-400">
-                            <i class="fa-solid fa-image text-sm"></i>
-                        </button>
-                    </div>
+                    <label class="flex items-center space-x-2 text-gray-400 hover:text-brand-500 cursor-pointer text-xs font-semibold">
+                        <i class="fa-solid fa-image text-base text-amber-400"></i>
+                        <span>Upload R2 Media</span>
+                        <input type="file" id="post-media-input" accept="image/*" class="hidden" onchange="previewPostImage(this)">
+                    </label>
                     <button onclick="submitPost()" class="bg-gradient-to-r from-brand-500 to-amber-500 hover:from-brand-600 hover:to-amber-600 text-white font-bold px-6 py-2 rounded-xl text-sm transition shadow-lg shadow-brand-500/20 active:scale-95">
                         Kirim
                     </button>
                 </div>
             </div>
 
-            <!-- POSTS FEED LIST -->
+            <!-- POSTS FEED -->
             <div id="posts-feed" class="space-y-4">
-                <div class="text-center py-12 text-gray-500 font-medium animate-pulse">
-                    <i class="fa-solid fa-circle-notch fa-spin text-2xl text-brand-500 mb-2"></i>
-                    <p class="text-xs">Memuat konten terbaru...</p>
-                </div>
+                <div class="text-center py-10 text-gray-500 text-xs">Memuat konten...</div>
             </div>
         </section>
 
-        <!-- RIGHT SIDEBAR (AI Quick Prompts) -->
+        <!-- RIGHT SIDEBAR -->
         <aside class="hidden md:block col-span-1 space-y-4">
-            <div class="bg-gray-900/60 border border-gray-800/80 rounded-3xl p-5 space-y-4 sticky top-20 glass">
-                <div class="flex items-center space-x-2">
-                    <i class="fa-solid fa-sparkles text-amber-400"></i>
-                    <h3 class="font-bold text-sm text-gray-200">Pintasan AI Studio</h3>
-                </div>
-                <div class="space-y-2.5">
-                    <button onclick="setAiInput('Tuliskan ide konten menarik untuk media sosial')" class="w-full text-left bg-gray-950/80 hover:bg-gray-800/80 p-3 rounded-2xl text-xs text-gray-300 border border-gray-800 transition flex items-center space-x-2">
-                        <span>✍️</span><span>Ide Konten Viral</span>
-                    </button>
-                    <button onclick="setAiInput('/image Kota cyberpunk masa depan dengan lampu neon')" class="w-full text-left bg-gray-950/80 hover:bg-gray-800/80 p-3 rounded-2xl text-xs text-gray-300 border border-gray-800 transition flex items-center space-x-2">
-                        <span>🎨</span><span>Generator Art Cyberpunk</span>
-                    </button>
-                </div>
+            <div class="bg-gray-900/60 border border-gray-800/80 rounded-3xl p-5 space-y-3 sticky top-20 glass">
+                <h3 class="font-bold text-xs text-gray-300 flex items-center gap-2"><i class="fa-solid fa-bolt text-amber-400"></i> Pintasan AI Prompt</h3>
+                <button onclick="setAiInput('Buatkan draf postingan tentang media sosial')" class="w-full text-left bg-gray-950/80 p-3 rounded-2xl text-xs text-gray-300 border border-gray-800 hover:border-brand-500/50 transition">✍️ "Tulis Postingan Medsos"</button>
+                <button onclick="setAiInput('Ringkaskan teks ini secara ringkas')" class="w-full text-left bg-gray-950/80 p-3 rounded-2xl text-xs text-gray-300 border border-gray-800 hover:border-brand-500/50 transition">📝 "Ringkas Teks"</button>
+                <button onclick="setAiInput('/image Pemandangan alam sci-fi futuristik')" class="w-full text-left bg-gray-950/80 p-3 rounded-2xl text-xs text-gray-300 border border-gray-800 hover:border-brand-500/50 transition">🎨 "Gambar Pemandangan AI"</button>
             </div>
         </aside>
     </main>
@@ -166,6 +128,7 @@
     <nav class="md:hidden fixed bottom-0 left-0 right-0 glass border-t border-gray-800/80 flex justify-around p-3 z-40">
         <a href="#" class="text-brand-500 text-xl"><i class="fa-solid fa-house"></i></a>
         <button onclick="openModal('ai-modal')" class="text-amber-400 text-xl"><i class="fa-solid fa-wand-magic-sparkles"></i></button>
+        <button onclick="openModal('story-upload-modal')" class="text-gray-400 hover:text-white text-xl"><i class="fa-solid fa-circle-plus"></i></button>
         <button onclick="openModal('profile-modal')" class="text-gray-400 hover:text-white text-xl"><i class="fa-solid fa-user"></i></button>
     </nav>
 
@@ -179,59 +142,89 @@
                     </div>
                     <div>
                         <h3 class="font-bold text-sm">AI Studio 3.3</h3>
-                        <p class="text-[10px] text-gray-400">Llama 3.3 70B & Stable Diffusion XL</p>
+                        <p class="text-[10px] text-gray-400">Llama 3.3 70B & SDXL Image Generator</p>
                     </div>
                 </div>
                 <button onclick="closeModal('ai-modal')" class="text-gray-400 hover:text-white p-2"><i class="fa-solid fa-xmark text-lg"></i></button>
             </div>
-            
             <div id="ai-chat-messages" class="flex-1 p-4 overflow-y-auto space-y-3 bg-gray-950/90 text-sm">
-                <div class="bg-gray-800/80 text-gray-300 p-3.5 rounded-2xl max-w-[85%] border border-gray-700/50 leading-relaxed">
-                    Halo! Saya asisten AI. Ketik pertanyaan Anda atau gunakan kata kunci <code class="bg-gray-900 px-1.5 py-0.5 rounded text-amber-400 font-mono">/image [deskripsi]</code> untuk membuat gambar AI.
+                <div class="bg-gray-800/80 text-gray-300 p-3.5 rounded-2xl max-w-[85%] border border-gray-700/50">
+                    Halo! Gunakan perintah <code class="bg-gray-900 px-1.5 py-0.5 rounded text-amber-400 font-mono">/image [prompt]</code> untuk membuat gambar via AI.
                 </div>
             </div>
-
             <div class="p-3.5 border-t border-gray-800 bg-gray-900 space-y-2">
                 <div class="flex space-x-2">
                     <input type="text" id="ai-input" class="flex-1 bg-gray-950 border border-gray-800 rounded-2xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-brand-500" placeholder="Ketik pesan atau /image...">
-                    <button onclick="sendAiRequest()" class="bg-gradient-to-r from-brand-500 to-amber-500 text-white px-5 py-2.5 rounded-2xl text-sm font-bold shadow-lg shadow-brand-500/20 active:scale-95 transition">Kirim</button>
+                    <button onclick="sendAiRequest()" class="bg-gradient-to-r from-brand-500 to-amber-500 text-white px-5 py-2.5 rounded-2xl text-sm font-bold shadow-lg shadow-brand-500/20 active:scale-95">Kirim</button>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- MODAL: ADMIN PANEL -->
+    <!-- MODAL: UPLOAD STORY -->
+    <div id="story-upload-modal" class="hidden fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4">
+        <div class="bg-gray-900 border border-gray-800 w-full max-w-sm rounded-3xl p-5 space-y-4 shadow-2xl">
+            <div class="flex justify-between items-center border-b border-gray-800 pb-3">
+                <h3 class="font-bold text-sm text-gray-200">Buat Cerita 24 Jam</h3>
+                <button onclick="closeModal('story-upload-modal')" class="text-gray-400"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <input type="file" id="story-file-input" accept="image/*" class="w-full bg-gray-950 border border-gray-800 p-2 rounded-xl text-xs text-gray-300">
+            <input type="text" id="story-caption-input" placeholder="Tulis caption..." class="w-full bg-gray-950 border border-gray-800 rounded-xl p-2.5 text-xs text-white focus:outline-none focus:border-brand-500">
+            <button onclick="uploadStory()" class="w-full bg-brand-500 text-white font-bold p-2.5 rounded-xl text-xs shadow-lg shadow-brand-500/20">Unggah Story</button>
+        </div>
+    </div>
+
+    <!-- MODAL: SUPER ADMIN PANEL -->
     <div id="admin-modal" class="hidden fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4">
-        <div class="bg-gray-900 border border-gray-800 w-full max-w-md rounded-3xl p-6 space-y-5 shadow-2xl">
-            <div class="flex justify-between items-center border-b border-gray-800 pb-4">
-                <h3 class="font-bold text-red-400 flex items-center gap-2"><i class="fa-solid fa-user-shield"></i> Owner Super Admin</h3>
-                <button onclick="closeModal('admin-modal')" class="text-gray-400 hover:text-white"><i class="fa-solid fa-xmark"></i></button>
+        <div class="bg-gray-900 border border-gray-800 w-full max-w-2xl rounded-3xl p-6 space-y-5 shadow-2xl max-h-[85vh] overflow-y-auto">
+            <div class="flex justify-between items-center border-b border-gray-800 pb-3">
+                <h3 class="font-bold text-red-400 flex items-center gap-2"><i class="fa-solid fa-user-shield"></i> Owner Super Admin Panel</h3>
+                <button onclick="closeModal('admin-modal')" class="text-gray-400"><i class="fa-solid fa-xmark"></i></button>
             </div>
-            <div class="space-y-3 text-sm">
-                <p class="text-gray-400 text-xs">Akses khusus: <b class="text-gray-200">danisvanandi@gmail.com</b></p>
-                <div class="p-3 bg-gray-950 border border-gray-800 rounded-2xl space-y-2">
-                    <div class="flex justify-between items-center text-xs">
-                        <span>Database Status</span>
-                        <span class="text-emerald-400 font-mono">Cloudflare D1 Active</span>
-                    </div>
-                    <div class="flex justify-between items-center text-xs">
-                        <span>AI Model</span>
-                        <span class="text-amber-400 font-mono">Llama 3.3 70B</span>
-                    </div>
+            
+            <!-- TOGGLE FITUR -->
+            <div class="space-y-3">
+                <h4 class="font-semibold text-xs text-gray-400 uppercase tracking-wider">Kontrol Program & Fitur</h4>
+                <div class="grid grid-cols-2 gap-3 text-xs">
+                    <label class="flex justify-between items-center p-3 bg-gray-950 border border-gray-800 rounded-2xl">
+                        <span>AI Chatbot</span><input type="checkbox" id="admin-toggle-ai" checked onchange="saveAdminSettings()" class="accent-brand-500">
+                    </label>
+                    <label class="flex justify-between items-center p-3 bg-gray-950 border border-gray-800 rounded-2xl">
+                        <span>Bot Otomatis</span><input type="checkbox" id="admin-toggle-bot" checked onchange="saveAdminSettings()" class="accent-brand-500">
+                    </label>
                 </div>
+            </div>
+
+            <!-- MANAJEMEN BOT -->
+            <div class="space-y-3">
+                <div class="flex justify-between items-center">
+                    <h4 class="font-semibold text-xs text-gray-400 uppercase tracking-wider">Kelola Bot Otomatis</h4>
+                    <button onclick="promptCreateBot()" class="bg-brand-500 text-white px-3 py-1 rounded-lg text-xs font-bold">+ Tambah Bot</button>
+                </div>
+                <div id="admin-bots-list" class="space-y-2 text-xs"></div>
+            </div>
+
+            <!-- KELOLA USER -->
+            <div class="space-y-3">
+                <h4 class="font-semibold text-xs text-gray-400 uppercase tracking-wider">Kelola Akun Pengguna</h4>
+                <div id="admin-users-list" class="space-y-2 text-xs"></div>
             </div>
         </div>
     </div>
 
-    <!-- MODAL: PROFIL -->
+    <!-- MODAL: PROFIL & AKUN -->
     <div id="profile-modal" class="hidden fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4">
-        <div class="bg-gray-900 border border-gray-800 w-full max-w-sm rounded-3xl p-6 space-y-5 text-center shadow-2xl">
+        <div class="bg-gray-900 border border-gray-800 w-full max-w-sm rounded-3xl p-6 space-y-4 text-center shadow-2xl">
             <img id="modal-user-avatar" class="w-20 h-20 rounded-full mx-auto border-4 border-brand-500 object-cover shadow-xl">
             <div>
                 <h4 id="modal-user-name" class="font-bold text-lg"></h4>
-                <p id="modal-user-email" class="text-xs text-gray-400 mt-1"></p>
+                <p id="modal-user-email" class="text-xs text-gray-400 mt-0.5"></p>
+                <span id="modal-user-role" class="inline-block mt-2 px-2.5 py-0.5 rounded-full text-[10px] font-mono bg-brand-500/10 text-brand-500 border border-brand-500/30">User</span>
             </div>
-            <button onclick="logout()" class="w-full bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/30 p-3 rounded-2xl font-bold text-sm transition">Logout</button>
+            <div class="space-y-2 pt-2 border-t border-gray-800">
+                <button onclick="logout()" class="w-full bg-gray-800 hover:bg-gray-700 text-gray-200 p-2.5 rounded-2xl text-xs font-semibold transition">Logout</button>
+                <button onclick="deleteAccount()" class="w-full bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/30 p-2.5 rounded-2xl text-xs font-semibold transition">Hapus Akun Permanen</button>
+            </div>
         </div>
     </div>
 
@@ -239,11 +232,13 @@
     <script>
         document.getElementById("brand-name").innerText = window.location.hostname || "SocialApp";
         let currentUser = JSON.parse(localStorage.getItem('currentUser')) || null;
+        let selectedPostMedia = null;
 
         window.onload = function () {
             if (currentUser) updateAuthUI();
             tryInitGoogleAuth();
             loadPosts();
+            loadStories();
         };
 
         function tryInitGoogleAuth() {
@@ -267,10 +262,11 @@
             };
             localStorage.setItem('currentUser', JSON.stringify(currentUser));
             updateAuthUI();
+            syncUserBackend();
         }
 
         function promptManualLogin() {
-            const email = prompt("Masukkan Email:", "danisvanandi@gmail.com");
+            const email = prompt("Masukkan Email Anda:", "danisvanandi@gmail.com");
             if (!email) return;
             const name = email.split('@')[0];
             currentUser = {
@@ -280,6 +276,16 @@
             };
             localStorage.setItem('currentUser', JSON.stringify(currentUser));
             updateAuthUI();
+            syncUserBackend();
+        }
+
+        async function syncUserBackend() {
+            if (!currentUser) return;
+            await fetch('/api/users/sync', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(currentUser)
+            });
         }
 
         function updateAuthUI() {
@@ -290,21 +296,55 @@
             document.getElementById('modal-user-avatar').src = currentUser.picture;
             document.getElementById('modal-user-name').innerText = currentUser.name;
             document.getElementById('modal-user-email').innerText = currentUser.email;
+            document.getElementById('modal-user-role').innerText = currentUser.role === 'admin' ? 'Super Admin / Owner' : 'Standard User';
             if(currentUser.role === 'admin') document.getElementById('admin-panel-btn').classList.remove('hidden');
         }
 
         function openModal(id) { document.getElementById(id).classList.remove("hidden"); }
         function closeModal(id) { document.getElementById(id).classList.add("hidden"); }
 
+        function previewPostImage(input) {
+            if (input.files && input.files[0]) {
+                selectedPostMedia = input.files[0];
+                const reader = new FileReader();
+                reader.onload = e => {
+                    document.getElementById('post-preview-img').src = e.target.result;
+                    document.getElementById('post-preview-box').classList.remove('hidden');
+                };
+                reader.readAsDataURL(selectedPostMedia);
+            }
+        }
+
+        function clearPostImage() {
+            selectedPostMedia = null;
+            document.getElementById('post-preview-box').classList.add('hidden');
+            document.getElementById('post-media-input').value = '';
+        }
+
         async function submitPost() {
             const content = document.getElementById('post-input').value.trim();
-            if(!content) return alert('Isi teks postingan terlebih dahulu!');
+            if (!content && !selectedPostMedia) return alert('Isi teks postingan atau pilih gambar!');
+            
+            let mediaUrl = null;
+            if (selectedPostMedia) {
+                const formData = new FormData();
+                formData.append('file', selectedPostMedia);
+                const upRes = await fetch('/api/upload', { method: 'POST', body: formData });
+                const upData = await upRes.json();
+                mediaUrl = upData.url;
+            }
+
             await fetch('/api/posts', {
                 method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({ user_id: currentUser ? currentUser.id : 'anon', content })
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    user_id: currentUser ? currentUser.id : 'anon',
+                    content, media_url: mediaUrl
+                })
             });
+
             document.getElementById('post-input').value = '';
+            clearPostImage();
             loadPosts();
         }
 
@@ -313,23 +353,185 @@
                 const res = await fetch('/api/posts');
                 const posts = await res.json();
                 const container = document.getElementById('posts-feed');
-                if(!posts || !posts.length) {
-                    container.innerHTML = '<div class="text-center py-10 text-gray-500 text-sm">Belum ada postingan. Buat postingan pertama!</div>';
+                if (!posts || !posts.length) {
+                    container.innerHTML = '<div class="text-center py-10 text-gray-500 text-xs">Belum ada postingan.</div>';
                     return;
                 }
                 container.innerHTML = posts.map(p => `
                     <div class="bg-gray-900/60 border border-gray-800/80 rounded-3xl p-5 space-y-3 glass shadow-lg">
-                        <div class="flex items-center space-x-3">
-                            <img src="https://api.dicebear.com/7.x/bottts/svg?seed=${p.user_name || 'user'}" class="w-9 h-9 rounded-full bg-gray-950 border border-gray-800">
-                            <div>
-                                <h4 class="font-bold text-sm text-gray-200">@${p.user_name || p.user_id || 'anonim'}</h4>
-                                <span class="text-[10px] text-gray-500">${new Date(p.created_at || Date.now()).toLocaleString('id-ID')}</span>
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center space-x-3">
+                                <img src="${p.user_picture || 'https://api.dicebear.com/7.x/bottts/svg?seed=' + p.user_name}" class="w-9 h-9 rounded-full bg-gray-950 border border-gray-800 object-cover">
+                                <div>
+                                    <h4 class="font-bold text-sm text-gray-200">@${p.user_name || p.user_id || 'anonim'}</h4>
+                                    <span class="text-[10px] text-gray-500">${new Date(p.created_at || Date.now()).toLocaleString('id-ID')}</span>
+                                </div>
+                            </div>
+                            ${currentUser && (currentUser.role === 'admin' || currentUser.id === p.user_id) ? `
+                                <button onclick="deletePost('${p.id}')" class="text-xs text-gray-500 hover:text-red-400 p-1"><i class="fa-solid fa-trash"></i></button>
+                            ` : ''}
+                        </div>
+                        ${p.content ? `<p class="text-sm text-gray-300 leading-relaxed">${p.content}</p>` : ''}
+                        ${p.media_url ? `<img src="${p.media_url}" class="rounded-2xl w-full max-h-96 object-cover border border-gray-800">` : ''}
+                        <div class="flex items-center space-x-4 border-t border-gray-800/80 pt-3 text-xs text-gray-400">
+                            <button onclick="likePost('${p.id}')" class="flex items-center space-x-1.5 hover:text-red-400">
+                                <i class="fa-solid fa-heart"></i><span>${p.likes_count || 0} Like</span>
+                            </button>
+                            <button onclick="toggleComments('${p.id}')" class="flex items-center space-x-1.5 hover:text-brand-500">
+                                <i class="fa-solid fa-comment"></i><span>Komentar</span>
+                            </button>
+                        </div>
+                        <div id="comments-box-${p.id}" class="hidden space-y-2 border-t border-gray-800/50 pt-2">
+                            <div id="comments-list-${p.id}" class="space-y-1.5 text-xs"></div>
+                            <div class="flex space-x-2 pt-1">
+                                <input type="text" id="comment-input-${p.id}" class="flex-1 bg-gray-950 border border-gray-800 rounded-xl px-3 py-1.5 text-xs text-white focus:outline-none" placeholder="Tulis komentar...">
+                                <button onclick="submitComment('${p.id}')" class="bg-brand-500 text-white px-3 py-1.5 rounded-xl text-xs font-semibold">Kirim</button>
                             </div>
                         </div>
-                        <p class="text-sm text-gray-300 leading-relaxed">${p.content}</p>
                     </div>
                 `).join('');
             } catch(e) {}
+        }
+
+        async function deletePost(id) {
+            if(!confirm('Hapus postingan ini?')) return;
+            await fetch('/api/posts/' + id, { method: 'DELETE' });
+            loadPosts();
+        }
+
+        async function likePost(id) {
+            if(!currentUser) return alert('Login terlebih dahulu!');
+            await fetch(`/api/posts/${id}/like`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ user_id: currentUser.id })
+            });
+            loadPosts();
+        }
+
+        async function toggleComments(postId) {
+            const box = document.getElementById(`comments-box-${postId}`);
+            box.classList.toggle('hidden');
+            if(!box.classList.contains('hidden')) {
+                const res = await fetch(`/api/posts/${postId}/comments`);
+                const comments = await res.json();
+                document.getElementById(`comments-list-${postId}`).innerHTML = comments.map(c => `
+                    <div class="bg-gray-950/80 p-2 rounded-xl border border-gray-800">
+                        <span class="font-bold text-orange-400">@${c.user_name || 'user'}:</span> ${c.content}
+                    </div>
+                `).join('');
+            }
+        }
+
+        async function submitComment(postId) {
+            const input = document.getElementById(`comment-input-${postId}`);
+            const content = input.value.trim();
+            if(!content || !currentUser) return;
+            await fetch(`/api/posts/${postId}/comments`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ user_id: currentUser.id, content })
+            });
+            input.value = '';
+            toggleComments(postId);
+        }
+
+        async function uploadStory() {
+            const fileInput = document.getElementById('story-file-input');
+            const caption = document.getElementById('story-caption-input').value.trim();
+            if(!fileInput.files[0] || !currentUser) return alert('Pilih gambar cerita!');
+
+            const formData = new FormData();
+            formData.append('file', fileInput.files[0]);
+            const upRes = await fetch('/api/upload', { method: 'POST', body: formData });
+            const upData = await upRes.json();
+
+            await fetch('/api/stories', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ user_id: currentUser.id, media_url: upData.url, caption })
+            });
+
+            closeModal('story-upload-modal');
+            loadStories();
+        }
+
+        async function loadStories() {
+            try {
+                const res = await fetch('/api/stories');
+                const stories = await res.json();
+                document.getElementById('stories-list').innerHTML = stories.map(s => `
+                    <div onclick="alert('Caption: ${s.caption || '-'}\\nBy @${s.user_name}')" class="flex-shrink-0 w-16 text-center cursor-pointer">
+                        <div class="w-14 h-14 rounded-2xl p-0.5 bg-gradient-to-tr from-brand-500 to-amber-500 mx-auto">
+                            <img src="${s.media_url}" class="w-full h-full rounded-[14px] bg-gray-900 object-cover">
+                        </div>
+                        <span class="text-[11px] text-gray-300 mt-1.5 block font-medium truncate">@${s.user_name || 'user'}</span>
+                    </div>
+                `).join('');
+            } catch(e) {}
+        }
+
+        async function openAdminModal() {
+            openModal('admin-modal');
+            loadAdminData();
+        }
+
+        async function loadAdminData() {
+            const botsRes = await fetch('/api/admin/bots');
+            const bots = await botsRes.json();
+            document.getElementById('admin-bots-list').innerHTML = bots.map(b => `
+                <div class="flex justify-between items-center p-2.5 bg-gray-950 border border-gray-800 rounded-xl">
+                    <div>
+                        <span class="font-bold text-gray-200">${b.name}</span>
+                        <p class="text-[10px] text-gray-500">${b.persona_prompt}</p>
+                    </div>
+                    <button onclick="deleteBot('${b.id}')" class="text-red-400 p-1"><i class="fa-solid fa-trash"></i></button>
+                </div>
+            `).join('');
+
+            const usersRes = await fetch('/api/admin/users');
+            const users = await usersRes.json();
+            document.getElementById('admin-users-list').innerHTML = users.map(u => `
+                <div class="flex justify-between items-center p-2.5 bg-gray-950 border border-gray-800 rounded-xl">
+                    <div>
+                        <span class="font-bold text-gray-200">${u.name}</span> (${u.email})
+                    </div>
+                    <button onclick="toggleBanUser('${u.id}', '${u.status}')" class="px-2 py-1 bg-gray-800 text-xs rounded-lg">${u.status === 'banned' ? 'Unban' : 'Ban'}</button>
+                </div>
+            `).join('');
+        }
+
+        async function promptCreateBot() {
+            const name = prompt("Nama Bot Baru:");
+            const promptText = prompt("Persona Prompt Bot (Instruksi posting):");
+            if(!name || !promptText) return;
+            await fetch('/api/admin/bots', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ name, persona_prompt: promptText })
+            });
+            loadAdminData();
+        }
+
+        async function deleteBot(id) {
+            await fetch('/api/admin/bots/' + id, { method: 'DELETE' });
+            loadAdminData();
+        }
+
+        async function toggleBanUser(id, currentStatus) {
+            const newStatus = currentStatus === 'banned' ? 'active' : 'banned';
+            await fetch(`/api/admin/users/${id}/status`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ status: newStatus })
+            });
+            loadAdminData();
+        }
+
+        async function deleteAccount() {
+            if(!confirm('Hapus akun Anda secara permanen?')) return;
+            await fetch('/api/users/' + currentUser.id, { method: 'DELETE' });
+            logout();
         }
 
         async function sendAiRequest() {
@@ -348,7 +550,7 @@
                 } else {
                     const res = await fetch('/api/ai/chat', { method: 'POST', body: JSON.stringify({ prompt: text }) });
                     const data = await res.json();
-                    container.innerHTML += `<div class="bg-gray-800/80 text-gray-200 p-3.5 rounded-2xl max-w-[85%] border border-gray-700/50 leading-relaxed">${data.response || 'Pesan diterima.'}</div>`;
+                    container.innerHTML += `<div class="bg-gray-800/80 text-gray-200 p-3.5 rounded-2xl max-w-[85%] border border-gray-700/50 leading-relaxed">${data.response}</div>`;
                 }
             } catch (err) {
                 container.innerHTML += `<div class="bg-red-900/40 text-red-300 p-3 rounded-2xl max-w-[85%] text-xs">Gagal terhubung ke AI.</div>`;
