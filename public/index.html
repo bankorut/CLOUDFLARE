@@ -1,220 +1,56 @@
 <!DOCTYPE html>
 <html lang="id" class="dark">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title id="page-title">Loading Application...</title>
-    
-    <!-- Tailwind CSS CDN -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        tailwind.config = {
-            darkMode: 'class',
-            theme: {
-                extend: {
-                    colors: {
-                        brand: {
-                            50: '#f0f9ff',
-                            500: '#0284c7',
-                            600: '#0369a1',
-                            700: '#075985',
-                        }
-                    }
-                }
-            }
-        }
-    </script>
-    
-    <!-- Font Awesome CDN -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    
-    <!-- Google Identity Services SDK -->
-    <script src="https://accounts.google.com/gsi/client" async defer></script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cloudflare Social App</title>
+  <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="bg-slate-900 text-slate-100 min-h-screen flex flex-col font-sans antialiased pb-16 md:pb-0">
-
-    <!-- HEADER & NAVBAR -->
-    <header class="sticky top-0 z-40 bg-slate-800/90 backdrop-blur-md border-b border-slate-700 px-4 py-3">
-        <div class="max-w-4xl mx-auto flex items-center justify-between">
-            <div class="flex items-center space-x-3">
-                <i class="fa-solid fa-share-nodes text-brand-500 text-2xl"></i>
-                <h1 id="app-name" class="font-bold text-xl tracking-tight text-white capitalize">App</h1>
-            </div>
-
-            <div class="flex items-center space-x-2" id="nav-actions">
-                <!-- Theme Toggle -->
-                <button id="theme-toggle" class="p-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-slate-200">
-                    <i class="fa-solid fa-moon"></i>
-                </button>
-
-                <!-- Admin Button (Hidden by default) -->
-                <button id="btn-admin-panel" class="hidden px-3 py-1.5 rounded-lg bg-amber-600 text-white font-medium text-sm hover:bg-amber-500 transition">
-                    <i class="fa-solid fa-shield-halved mr-1"></i> Admin
-                </button>
-
-                <!-- Auth State Button -->
-                <div id="auth-container">
-                    <button id="btn-login" class="px-4 py-1.5 rounded-lg bg-brand-600 hover:bg-brand-500 text-white font-medium text-sm transition">
-                        Masuk
-                    </button>
-                </div>
-            </div>
-        </div>
+<body class="bg-gray-900 text-gray-100 min-h-screen p-4 md:p-8 font-sans">
+  <div class="max-w-2xl mx-auto space-y-6">
+    
+    <!-- Header -->
+    <header class="flex items-center justify-between border-b border-gray-800 pb-4">
+      <h1 class="text-2xl font-bold bg-gradient-to-r from-orange-400 to-amber-500 bg-clip-text text-transparent">
+        Cloudflare Social
+      </h1>
+      <span class="text-xs px-2.5 py-1 rounded-full bg-orange-500/10 text-orange-400 font-mono">D1 + Workers</span>
     </header>
 
-    <!-- MAIN CONTENT CONTAINER -->
-    <main class="flex-1 max-w-4xl w-full mx-auto p-4 grid grid-cols-1 md:grid-cols-3 gap-6">
-        
-        <!-- LEFT / MAIN FEED (2 COLS ON DESKTOP) -->
-        <section class="md:col-span-2 space-y-6">
-            
-            <!-- STORIES BAR -->
-            <div class="bg-slate-800 rounded-xl p-3 border border-slate-700 overflow-x-auto">
-                <div id="stories-container" class="flex space-x-3 min-w-max">
-                    <!-- Add Story Button -->
-                    <div class="flex flex-col items-center space-y-1 cursor-pointer" onclick="openStoryModal()">
-                        <div class="w-14 h-14 rounded-full border-2 border-dashed border-brand-500 flex items-center justify-center bg-slate-700 hover:bg-slate-600">
-                            <i class="fa-solid fa-plus text-brand-500 text-xl"></i>
-                        </div>
-                        <span class="text-xs text-slate-300">Cerita Anda</span>
-                    </div>
-                    <!-- Dynamic Stories Will Be Appended Here -->
-                </div>
+    <!-- Form Post -->
+    <form id="postForm" class="bg-gray-800 p-4 rounded-xl border border-gray-700 space-y-3">
+      <input type="text" id="username" placeholder="@username" class="w-full bg-gray-900 border border-gray-700 rounded-lg p-2.5 text-sm focus:outline-none focus:border-orange-500">
+      <input type="text" id="title" placeholder="Judul postingan..." class="w-full bg-gray-900 border border-gray-700 rounded-lg p-2.5 text-sm focus:outline-none focus:border-orange-500">
+      <textarea id="post" placeholder="Apa yang sedang terjadi?" rows="3" class="w-full bg-gray-900 border border-gray-700 rounded-lg p-2.5 text-sm focus:outline-none focus:border-orange-500 resize-none"></textarea>
+      <button type="submit" class="w-full bg-orange-500 hover:bg-orange-600 text-white font-medium py-2 rounded-lg text-sm transition-all">
+        Kirim Postingan
+      </button>
+    </form>
+
+    <!-- Container Postingan -->
+    <div id="posts" class="space-y-4"></div>
+  </div>
+
+  <script>
+    async function loadPosts() {
+      try {
+        const res = await fetch('/api/posts');
+        const posts = await res.json();
+        const container = document.getElementById('posts');
+        container.innerHTML = posts.map(p => `
+          <div class="bg-gray-800/60 p-4 rounded-xl border border-gray-700/80 hover:border-gray-600 transition-all">
+            <div class="flex items-center justify-between mb-2">
+              <span class="text-xs font-semibold text-orange-400">@${p.username || 'anon'}</span>
             </div>
-
-            <!-- CREATE POST BOX -->
-            <div class="bg-slate-800 rounded-xl p-4 border border-slate-700 space-y-3">
-                <textarea id="post-input" rows="3" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-3 text-sm text-slate-100 placeholder-slate-400 focus:outline-none focus:border-brand-500 resize-none" placeholder="Apa yang sedang terjadi?"></textarea>
-                
-                <!-- Preview Image Upload -->
-                <div id="media-preview" class="hidden relative">
-                    <img id="media-preview-img" src="" class="max-h-60 rounded-lg w-full object-cover">
-                    <button onclick="removeMediaPreview()" class="absolute top-2 right-2 bg-slate-900/80 p-1.5 rounded-full text-white hover:bg-red-600">
-                        <i class="fa-solid fa-xmark"></i>
-                    </button>
-                </div>
-
-                <div class="flex justify-between items-center">
-                    <label class="cursor-pointer flex items-center space-x-2 text-slate-400 hover:text-brand-500 text-sm">
-                        <i class="fa-solid fa-image text-lg"></i>
-                        <span>Upload Gambar</span>
-                        <input type="file" id="post-file" accept="image/*" class="hidden" onchange="handleFileSelect(event)">
-                    </label>
-                    <button id="btn-submit-post" onclick="submitPost()" class="px-5 py-2 rounded-lg bg-brand-600 hover:bg-brand-500 text-white font-medium text-sm transition flex items-center">
-                        <span>Posting</span>
-                    </button>
-                </div>
-            </div>
-
-            <!-- FEED CONTAINER -->
-            <div id="feed-container" class="space-y-4">
-                <!-- Skeleton Loader -->
-                <div class="bg-slate-800 rounded-xl p-4 border border-slate-700 animate-pulse space-y-3">
-                    <div class="flex items-center space-x-3">
-                        <div class="w-10 h-10 rounded-full bg-slate-700"></div>
-                        <div class="flex-1 space-y-2">
-                            <div class="h-4 bg-slate-700 rounded w-1/3"></div>
-                            <div class="h-3 bg-slate-700 rounded w-1/4"></div>
-                        </div>
-                    </div>
-                    <div class="h-16 bg-slate-700 rounded"></div>
-                </div>
-            </div>
-
-        </section>
-
-        <!-- RIGHT SIDEBAR (DESKTOP ONLY) -->
-        <aside class="hidden md:block space-y-6">
-            <!-- User Profile Card Widget -->
-            <div id="user-profile-widget" class="bg-slate-800 rounded-xl p-4 border border-slate-700 text-center space-y-3">
-                <img id="widget-user-avatar" src="https://via.placeholder.com/80" class="w-20 h-20 rounded-full mx-auto border-2 border-brand-500 object-cover">
-                <div>
-                    <h3 id="widget-user-name" class="font-bold text-white text-base">Tamu</h3>
-                    <p id="widget-user-email" class="text-xs text-slate-400">Silakan masuk dahulu</p>
-                </div>
-            </div>
-        </aside>
-
-    </main>
-
-    <!-- FLOATING AI CHATBOT TRIGGER -->
-    <button onclick="toggleAiModal()" class="fixed bottom-20 right-4 md:bottom-6 md:right-6 bg-gradient-to-r from-purple-600 to-brand-600 hover:from-purple-500 hover:to-brand-500 text-white p-4 rounded-full shadow-lg z-40 transition-transform active:scale-95 flex items-center justify-center">
-        <i class="fa-solid fa-wand-magic-sparkles text-xl"></i>
-    </button>
-
-    <!-- AI CHATBOT MODAL -->
-    <div id="ai-modal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
-        <div class="bg-slate-800 border border-slate-700 rounded-xl w-full max-w-lg h-[80vh] flex flex-col overflow-hidden shadow-2xl">
-            <!-- Modal Header -->
-            <div class="p-4 bg-slate-800 border-b border-slate-700 flex justify-between items-center">
-                <div class="flex items-center space-x-2">
-                    <i class="fa-solid fa-robot text-purple-400 text-xl"></i>
-                    <h2 class="font-bold text-white">AI Assistant (Workers AI)</h2>
-                </div>
-                <button onclick="toggleAiModal()" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
-            </div>
-
-            <!-- Tab Buttons -->
-            <div class="flex border-b border-slate-700 bg-slate-850">
-                <button id="ai-tab-text-btn" onclick="switchAiTab('text')" class="flex-1 py-2 text-sm font-semibold border-b-2 border-brand-500 text-brand-400">Text Chat</button>
-                <button id="ai-tab-img-btn" onclick="switchAiTab('image')" class="flex-1 py-2 text-sm font-semibold border-b-2 border-transparent text-slate-400">Generate Gambar</button>
-            </div>
-
-            <!-- Tab Content: Text Chat -->
-            <div id="ai-tab-text" class="flex-1 flex flex-col overflow-hidden">
-                <!-- Chat Messages -->
-                <div id="ai-messages" class="flex-1 overflow-y-auto p-4 space-y-3">
-                    <div class="bg-slate-700/50 rounded-lg p-3 text-sm text-slate-200 self-start max-w-[85%]">
-                        Halo! Ada yang bisa saya bantu hari ini? Anda bisa meminta saya membuatkan postingan atau merangkum ide.
-                    </div>
-                </div>
-
-                <!-- Shortcuts Prompt -->
-                <div class="p-2 border-t border-slate-700/50 flex space-x-2 overflow-x-auto text-xs">
-                    <button onclick="insertAiPrompt('Tuliskan postingan motivasi singkat untuk media sosial.')" class="bg-slate-700 px-3 py-1 rounded-full text-slate-300 hover:bg-slate-600 whitespace-nowrap">💡 Idea Postingan</button>
-                    <button onclick="insertAiPrompt('Buat caption Instagram estetika tentang kopi pagi.')" class="bg-slate-700 px-3 py-1 rounded-full text-slate-300 hover:bg-slate-600 whitespace-nowrap">☕ Caption Kopi</button>
-                </div>
-
-                <!-- Input Box -->
-                <div class="p-3 border-t border-slate-700 flex space-x-2">
-                    <input type="text" id="ai-text-input" class="flex-1 bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-purple-500" placeholder="Ketik pertanyaan...">
-                    <button onclick="sendAiMessage()" class="bg-purple-600 hover:bg-purple-500 px-4 py-2 rounded-lg text-white font-medium text-sm"><i class="fa-solid fa-paper-plane"></i></button>
-                </div>
-            </div>
-
-            <!-- Tab Content: Image Generator -->
-            <div id="ai-tab-image" class="flex-1 flex flex-col p-4 space-y-4 overflow-y-auto hidden">
-                <textarea id="ai-img-prompt" rows="3" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-3 text-sm focus:outline-none focus:border-purple-500" placeholder="Deskripsikan gambar (cth: Cyberpunk city sunset, highly detailed, 4k)..."></textarea>
-                <button onclick="generateAiImage()" id="btn-gen-img" class="w-full py-2 bg-gradient-to-r from-purple-600 to-brand-600 hover:opacity-90 rounded-lg font-bold text-sm text-white">Generate Gambar</button>
-                
-                <div id="ai-img-result" class="flex-1 flex items-center justify-center border border-dashed border-slate-700 rounded-lg min-h-[200px]">
-                    <span class="text-xs text-slate-500">Hasil gambar akan muncul di sini</span>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- SUPER ADMIN PANEL MODAL -->
-    <div id="admin-modal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
-        <div class="bg-slate-800 border border-slate-700 rounded-xl w-full max-w-2xl h-[85vh] flex flex-col overflow-hidden shadow-2xl">
-            <div class="p-4 bg-slate-800 border-b border-slate-700 flex justify-between items-center">
-                <h2 class="font-bold text-lg text-amber-400 flex items-center"><i class="fa-solid fa-user-shield mr-2"></i> Super Admin Panel</h2>
-                <button onclick="toggleAdminModal()" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
-            </div>
-
-            <!-- Admin Navigation Tabs -->
-            <div class="flex border-b border-slate-700 bg-slate-850 text-sm overflow-x-auto">
-                <button onclick="switchAdminTab('users')" class="px-4 py-2.5 font-semibold text-amber-400 border-b-2 border-amber-400">Users</button>
-                <button onclick="switchAdminTab('bots')" class="px-4 py-2.5 font-semibold text-slate-400 border-b-2 border-transparent">Bot Config</button>
-                <button onclick="switchAdminTab('features')" class="px-4 py-2.5 font-semibold text-slate-400 border-b-2 border-transparent">Fitur App</button>
-            </div>
-
-            <!-- Admin Content Body -->
-            <div id="admin-modal-body" class="flex-1 p-4 overflow-y-auto space-y-4">
-                <!-- User List Table / Dynamic Features Output Here -->
-            </div>
-        </div>
-    </div>
-
+            <h3 class="font-bold text-gray-100 mb-1">${p.title}</h3>
+            <p class="text-sm text-gray-300 leading-relaxed">${p.content || p.post}</p>
+          </div>
+        `).join('');
+      } catch (err) {
+        console.error('Failed to load posts:', err);
+      }
+    }
+    loadPosts();
+  </script>
 </body>
 </html>
