@@ -1,3 +1,235 @@
+const HTML_APP = `<!DOCTYPE html>
+<html lang="id" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cloudflare Social App</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: { extend: { colors: { brand: { 500: '#f97316', 600: '#ea580c' } } } }
+        }
+    </script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
+</head>
+<body class="bg-gray-950 text-gray-100 min-h-screen flex flex-col font-sans pb-20 md:pb-0">
+
+    <!-- HEADER -->
+    <header class="sticky top-0 z-30 bg-gray-900/90 backdrop-blur-md border-b border-gray-800 px-4 py-3">
+        <div class="max-w-6xl mx-auto flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-brand-500 to-amber-500 flex items-center justify-center font-black text-white shadow-lg">
+                    <i class="fa-solid fa-bolt"></i>
+                </div>
+                <h1 id="brand-name" class="text-xl font-extrabold bg-gradient-to-r from-white to-gray-400 bg-clip-text text-transparent">App</h1>
+            </div>
+            <div class="flex items-center space-x-3">
+                <button onclick="openModal('ai-modal')" class="flex items-center space-x-2 bg-gray-800 text-orange-400 px-3 py-1.5 rounded-full text-sm border border-orange-500/30">
+                    <i class="fa-solid fa-wand-magic-sparkles"></i>
+                    <span class="hidden sm:inline">AI Studio</span>
+                </button>
+
+                <div id="google-auth-container" class="flex items-center gap-2">
+                    <div id="google-btn-slot"></div>
+                    <button onclick="promptManualLogin()" class="bg-gray-800 hover:bg-gray-700 text-xs px-3 py-1.5 rounded-full border border-gray-700 text-gray-300">
+                        🔑 Login
+                    </button>
+                </div>
+
+                <div id="user-profile-btn" class="hidden flex items-center space-x-2">
+                    <img id="user-avatar" class="w-9 h-9 rounded-full border-2 border-brand-500 object-cover cursor-pointer" onclick="openModal('profile-modal')">
+                    <button id="admin-panel-btn" onclick="openModal('admin-modal')" class="hidden bg-red-600/20 text-red-400 border border-red-500/30 p-2 rounded-full text-xs">
+                        <i class="fa-solid fa-user-shield"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- MAIN CONTENT -->
+    <main class="max-w-6xl mx-auto w-full flex-1 grid grid-cols-1 md:grid-cols-4 gap-6 p-4">
+        <aside class="hidden md:block col-span-1">
+            <nav class="bg-gray-900 border border-gray-800 rounded-2xl p-4 space-y-2 sticky top-20">
+                <a href="#" class="flex items-center space-x-3 text-brand-500 bg-brand-500/10 font-semibold p-3 rounded-xl"><i class="fa-solid fa-house"></i><span>Beranda</span></a>
+                <a href="#" onclick="openModal('ai-modal')" class="flex items-center space-x-3 text-gray-400 hover:text-white p-3 rounded-xl"><i class="fa-solid fa-robot"></i><span>AI Studio</span></a>
+                <a href="#" onclick="openModal('profile-modal')" class="flex items-center space-x-3 text-gray-400 hover:text-white p-3 rounded-xl"><i class="fa-solid fa-user"></i><span>Profil</span></a>
+            </nav>
+        </aside>
+
+        <section class="col-span-1 md:col-span-2 space-y-5">
+            <div class="bg-gray-900 border border-gray-800 rounded-2xl p-4 space-y-3">
+                <textarea id="post-input" rows="3" class="w-full bg-gray-950 border border-gray-800 rounded-xl p-3 text-sm text-white focus:outline-none focus:border-brand-500" placeholder="Apa yang sedang terjadi?"></textarea>
+                <div class="flex justify-between items-center pt-2 border-t border-gray-800">
+                    <span class="text-xs text-gray-500">Cloudflare D1 Enabled</span>
+                    <button onclick="submitPost()" class="bg-brand-500 hover:bg-brand-600 text-white font-medium px-5 py-2 rounded-xl text-sm">Kirim</button>
+                </div>
+            </div>
+
+            <div id="posts-feed" class="space-y-4"></div>
+        </section>
+
+        <aside class="hidden md:block col-span-1">
+            <div class="bg-gray-900 border border-gray-800 rounded-2xl p-4 space-y-3 sticky top-20">
+                <h3 class="font-bold text-sm text-gray-300">Pintasan AI</h3>
+                <button onclick="setAiInput('Buat ringkasan postingan')" class="w-full text-left bg-gray-950 p-2.5 rounded-xl text-xs text-gray-400 border border-gray-800">✍️ "Buat ringkasan postingan"</button>
+                <button onclick="setAiInput('/image Pemandangan cyberpunk')" class="w-full text-left bg-gray-950 p-2.5 rounded-xl text-xs text-gray-400 border border-gray-800">🎨 "/image Pemandangan cyberpunk"</button>
+            </div>
+        </aside>
+    </main>
+
+    <!-- MODAL: AI CHATBOT -->
+    <div id="ai-modal" class="hidden fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-4">
+        <div class="bg-gray-900 border border-gray-800 w-full max-w-lg rounded-2xl overflow-hidden flex flex-col h-[80vh]">
+            <div class="p-4 border-b border-gray-800 flex justify-between items-center">
+                <h3 class="font-bold flex items-center gap-2"><i class="fa-solid fa-robot text-brand-500"></i> AI Assistant</h3>
+                <button onclick="closeModal('ai-modal')" class="text-gray-400"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div id="ai-chat-messages" class="flex-1 p-4 overflow-y-auto space-y-3 bg-gray-950 text-sm">
+                <div class="bg-gray-800 p-3 rounded-xl max-w-[85%]">Halo! Gunakan <code>/image [prompt]</code> untuk generator gambar AI.</div>
+            </div>
+            <div class="p-3 border-t border-gray-800 bg-gray-900 flex gap-2">
+                <input type="text" id="ai-input" class="flex-1 bg-gray-950 border border-gray-800 rounded-xl px-3 py-2 text-sm text-white focus:outline-none" placeholder="Ketik pesan atau /image...">
+                <button onclick="sendAiRequest()" class="bg-brand-500 text-white px-4 py-2 rounded-xl text-sm">Kirim</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL: ADMIN PANEL -->
+    <div id="admin-modal" class="hidden fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-4">
+        <div class="bg-gray-900 border border-gray-800 w-full max-w-md rounded-2xl p-5 space-y-4">
+            <div class="flex justify-between items-center border-b border-gray-800 pb-3">
+                <h3 class="font-bold text-red-400"><i class="fa-solid fa-user-shield"></i> Owner Super Admin</h3>
+                <button onclick="closeModal('admin-modal')" class="text-gray-400"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <p class="text-sm text-gray-300">Akses akun: <b id="admin-email-display">danisvanandi@gmail.com</b></p>
+            <div class="space-y-2 text-sm">
+                <label class="flex justify-between p-3 bg-gray-950 rounded-xl border border-gray-800">
+                    <span>Fitur AI Chatbot</span><input type="checkbox" checked class="accent-brand-500">
+                </label>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL: PROFIL -->
+    <div id="profile-modal" class="hidden fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-4">
+        <div class="bg-gray-900 border border-gray-800 w-full max-w-sm rounded-2xl p-5 space-y-4 text-center">
+            <img id="modal-user-avatar" class="w-16 h-16 rounded-full mx-auto border-2 border-brand-500 object-cover">
+            <h4 id="modal-user-name" class="font-bold"></h4>
+            <p id="modal-user-email" class="text-xs text-gray-400"></p>
+            <button onclick="logout()" class="w-full bg-red-600/20 text-red-400 p-2.5 rounded-xl text-sm font-medium">Logout</button>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById("brand-name").innerText = window.location.hostname || "SocialApp";
+        let currentUser = JSON.parse(localStorage.getItem('currentUser')) || null;
+
+        window.onload = function () {
+            if (currentUser) updateAuthUI();
+            tryInitGoogleAuth();
+            loadPosts();
+        };
+
+        function tryInitGoogleAuth() {
+            if (typeof google !== 'undefined' && google.accounts) {
+                google.accounts.id.initialize({
+                    client_id: "121466195081-m7kog8d7833erg7anuc5sjkfdvfru0d7.apps.googleusercontent.com",
+                    callback: handleGoogleLogin
+                });
+                google.accounts.id.renderButton(
+                    document.getElementById("google-btn-slot"),
+                    { theme: "filled_black", size: "medium", shape: "pill" }
+                );
+            }
+        }
+
+        function handleGoogleLogin(response) {
+            const payload = JSON.parse(atob(response.credential.split('.')[1].replace(/-/g, '+').replace(/_/g, '/')));
+            currentUser = {
+                id: payload.sub, email: payload.email, name: payload.name, picture: payload.picture,
+                role: payload.email === 'danisvanandi@gmail.com' ? 'admin' : 'user'
+            };
+            localStorage.setItem('currentUser', JSON.stringify(currentUser));
+            updateAuthUI();
+        }
+
+        function promptManualLogin() {
+            const email = prompt("Masukkan Email:", "danisvanandi@gmail.com");
+            if (!email) return;
+            const name = email.split('@')[0];
+            currentUser = {
+                id: "user-" + Date.now(),
+                email: email, name: name,
+                picture: "https://api.dicebear.com/7.x/bottts/svg?seed=" + name,
+                role: email === 'danisvanandi@gmail.com' ? 'admin' : 'user'
+            };
+            localStorage.setItem('currentUser', JSON.stringify(currentUser));
+            updateAuthUI();
+        }
+
+        function updateAuthUI() {
+            document.getElementById('google-auth-container').classList.add('hidden');
+            document.getElementById('user-profile-btn').classList.remove('hidden');
+            document.getElementById('user-avatar').src = currentUser.picture;
+            document.getElementById('modal-user-avatar').src = currentUser.picture;
+            document.getElementById('modal-user-name').innerText = currentUser.name;
+            document.getElementById('modal-user-email').innerText = currentUser.email;
+            if(currentUser.role === 'admin') document.getElementById('admin-panel-btn').classList.remove('hidden');
+        }
+
+        function openModal(id) { document.getElementById(id).classList.remove("hidden"); }
+        function closeModal(id) { document.getElementById(id).classList.add("hidden"); }
+
+        async function submitPost() {
+            const content = document.getElementById('post-input').value.trim();
+            if(!content) return alert('Isi teks postingan!');
+            await fetch('/api/posts', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ user_id: currentUser ? currentUser.id : 'anon', content })
+            });
+            document.getElementById('post-input').value = '';
+            loadPosts();
+        }
+
+        async function loadPosts() {
+            try {
+                const res = await fetch('/api/posts');
+                const posts = await res.json();
+                document.getElementById('posts-feed').innerHTML = posts.map(p => \`
+                    <div class="bg-gray-900 border border-gray-800 rounded-2xl p-4 space-y-2">
+                        <span class="text-xs text-orange-400 font-semibold">@\${p.user_name || p.user_id || 'user'}</span>
+                        <p class="text-sm text-gray-200">\${p.content}</p>
+                    </div>
+                \`).join('');
+            } catch(e) {}
+        }
+
+        async function sendAiRequest() {
+            const text = document.getElementById('ai-input').value.trim();
+            if(!text) return;
+            const container = document.getElementById('ai-chat-messages');
+            container.innerHTML += \`<div class="bg-orange-500/20 text-orange-300 p-3 rounded-xl max-w-[85%] ml-auto">\${text}</div>\`;
+            document.getElementById('ai-input').value = '';
+
+            if(text.startsWith('/image ')) {
+                const res = await fetch('/api/ai/image', { method: 'POST', body: JSON.stringify({ prompt: text.replace('/image ','') }) });
+                const blob = await res.blob();
+                container.innerHTML += \`<div class="bg-gray-800 p-2 rounded-xl"><img src="\${URL.createObjectURL(blob)}" class="rounded-lg w-full"></div>\`;
+            } else {
+                const res = await fetch('/api/ai/chat', { method: 'POST', body: JSON.stringify({ prompt: text }) });
+                const data = await res.json();
+                container.innerHTML += \`<div class="bg-gray-800 p-3 rounded-xl">\${data.response}</div>\`;
+            }
+        }
+        function setAiInput(val) { document.getElementById('ai-input').value = val; openModal('ai-modal'); }
+        function logout() { localStorage.removeItem('currentUser'); location.reload(); }
+    </script>
+</body>
+</html>`;
+
 export default {
     async fetch(request, env, ctx) {
         const url = new URL(request.url);
@@ -10,107 +242,50 @@ export default {
             "Access-Control-Allow-Headers": "Content-Type",
         };
 
-        if (method === "OPTIONS") {
-            return new Response(null, { headers: corsHeaders });
-        }
+        if (method === "OPTIONS") return new Response(null, { headers: corsHeaders });
 
         try {
-            // GET POSTS
             if (path === "/api/posts" && method === "GET") {
                 const { results } = await env.DB.prepare(`
-                    SELECT posts.*, users.name as user_name, users.picture as user_picture
-                    FROM posts
-                    LEFT JOIN users ON posts.user_id = users.id
+                    SELECT posts.*, users.name as user_name
+                    FROM posts LEFT JOIN users ON posts.user_id = users.id
                     ORDER BY posts.created_at DESC LIMIT 30
                 `).all();
-                return Response.json(results, { headers: corsHeaders });
+                return Response.json(results || [], { headers: corsHeaders });
             }
 
-            // CREATE POST
             if (path === "/api/posts" && method === "POST") {
-                const { user_id, content, media_url } = await request.json();
+                const { user_id, content } = await request.json();
                 const id = crypto.randomUUID();
-                await env.DB.prepare(
-                    "INSERT INTO posts (id, user_id, content, media_url) VALUES (?, ?, ?, ?)"
-                ).bind(id, user_id, content || "", media_url || "").run();
+                await env.DB.prepare("INSERT INTO posts (id, user_id, content) VALUES (?, ?, ?)")
+                    .bind(id, user_id || "anon", content || "").run();
                 return Response.json({ success: true, id }, { headers: corsHeaders });
             }
 
-            // SYNC USER
-            if (path === "/api/users/sync" && method === "POST") {
-                const { id, email, name, picture, role } = await request.json();
-                await env.DB.prepare(`
-                    INSERT INTO users (id, email, name, picture, role)
-                    VALUES (?, ?, ?, ?, ?)
-                    ON CONFLICT(email) DO UPDATE SET name=?, picture=?, role=?
-                `).bind(id, email, name, picture, role, name, picture, role).run();
-                return Response.json({ success: true }, { headers: corsHeaders });
-            }
-
-            // UPLOAD TO R2
-            if (path === "/api/upload" && method === "POST") {
-                const formData = await request.formData();
-                const file = formData.get("file");
-                const key = `${Date.now()}-${file.name}`;
-                await env.BUCKET.put(key, file.stream(), {
-                    httpMetadata: { contentType: file.type }
-                });
-                return Response.json({ url: `/api/media/${key}` }, { headers: corsHeaders });
-            }
-
-            // SERVE R2 MEDIA
-            if (path.startsWith("/api/media/")) {
-                const key = path.replace("/api/media/", "");
-                const object = await env.BUCKET.get(key);
-                if (!object) return new Response("Not Found", { status: 404 });
-                const headers = new Headers();
-                object.writeHttpMetadata(headers);
-                headers.set("etag", object.httpEtag);
-                return new Response(object.body, { headers });
-            }
-
-            // WORKERS AI CHAT
             if (path === "/api/ai/chat" && method === "POST") {
                 const { prompt } = await request.json();
                 const aiRes = await env.AI.run("@cf/meta/llama-3-8b-instruct", {
-                    messages: [
-                        { role: "system", content: "Kamu adalah asisten AI ramah di aplikasi sosial media." },
-                        { role: "user", content: prompt }
-                    ]
+                    messages: [{ role: "user", content: prompt }]
                 });
                 return Response.json({ response: aiRes.response }, { headers: corsHeaders });
             }
 
-            // WORKERS AI IMAGE
             if (path === "/api/ai/image" && method === "POST") {
                 const { prompt } = await request.json();
-                const imageBinary = await env.AI.run(
-                    "@cf/stabilityai/stable-diffusion-xl-base-1.0",
-                    { prompt }
-                );
-                return new Response(imageBinary, {
-                    headers: { ...corsHeaders, "Content-Type": "image/jpeg" }
+                const imageBinary = await env.AI.run("@cf/stabilityai/stable-diffusion-xl-base-1.0", { prompt });
+                return new Response(imageBinary, { headers: { ...corsHeaders, "Content-Type": "image/jpeg" } });
+            }
+
+            // SERVE UI DIRECTLY FROM WORKER (BYPASSES CACHE)
+            if (!path.startsWith("/api/")) {
+                return new Response(HTML_APP, {
+                    headers: { "Content-Type": "text/html;charset=UTF-8", ...corsHeaders }
                 });
             }
 
-            return env.ASSETS ? env.ASSETS.fetch(request) : new Response("Not Found", { status: 404 });
-
+            return new Response("Not Found", { status: 404 });
         } catch (err) {
             return Response.json({ error: err.message }, { status: 500, headers: corsHeaders });
-        }
-    },
-
-    // CRON TRIGGER BOT AUTOMATION
-    async scheduled(event, env, ctx) {
-        const { results: bots } = await env.DB.prepare("SELECT * FROM bots WHERE is_active = 1").all();
-        for (const bot of bots) {
-            const aiRes = await env.AI.run("@cf/meta/llama-3-8b-instruct", {
-                messages: [{ role: "user", content: bot.persona_prompt }]
-            });
-            const postId = crypto.randomUUID();
-            await env.DB.prepare("INSERT INTO posts (id, user_id, content, is_bot) VALUES (?, ?, ?, 1)")
-                .bind(postId, bot.id, aiRes.response)
-                .run();
         }
     }
 };
