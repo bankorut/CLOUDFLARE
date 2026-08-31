@@ -36,9 +36,9 @@ export default {
                 if (!env.AI) {
                     return Response.json({ response: "AI Binding belum terhubung di Cloudflare." }, { headers: corsHeaders });
                 }
-                const aiRes = await env.AI.run("@cf/meta/llama-3-8b-instruct", {
+                const aiRes = await env.AI.run("@cf/meta/llama-3.1-8b-instruct", {
                     messages: [
-                        { role: "system", content: "Kamu adalah asisten AI yang ramah dalam bahasa Indonesia. Jawab secara unik dan dinamis sesuai pesan pengguna." },
+                        { role: "system", content: "Kamu adalah asisten AI ramah dalam bahasa Indonesia." },
                         { role: "user", content: prompt || "Halo" }
                     ]
                 });
