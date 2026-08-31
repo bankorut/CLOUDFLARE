@@ -217,7 +217,7 @@
                 } else {
                     const res = await fetch('/api/ai/chat', { method: 'POST', body: JSON.stringify({ prompt: text }) });
                     const data = await res.json();
-                    const replyText = data.response || data.message || data.text || "Halo! Ada yang bisa saya bantu?";
+                    const replyText = data.response || "Pesan diterima namun AI tidak memberikan teks.";
                     container.innerHTML += `<div class="bg-gray-800 text-gray-300 p-3 rounded-xl max-w-[85%]">${replyText}</div>`;
                 }
             } catch (err) {

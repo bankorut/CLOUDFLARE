@@ -8,7 +8,7 @@ export default {
             "Access-Control-Allow-Origin": "*",
             "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
             "Access-Control-Allow-Headers": "Content-Type",
-            "Cache-Control": "no-store, no-cache, must-revalidate"
+            "Cache-Control": "no-store"
         };
 
         if (method === "OPTIONS") return new Response(null, { headers: corsHeaders });
@@ -33,24 +33,17 @@ export default {
 
             if (path === "/api/ai/chat" && method === "POST") {
                 const { prompt } = await request.json();
-                
                 if (!env.AI) {
-                    return Response.json({ response: "Error: Binding AI belum terhubung di Cloudflare Dashboard." }, { headers: corsHeaders });
+                    return Response.json({ response: "AI Binding belum terhubung di Cloudflare." }, { headers: corsHeaders });
                 }
-
-                try {
-                    const aiRes = await env.AI.run("@cf/meta/llama-3.1-8b-instruct", {
-                        messages: [
-                            { role: "system", content: "Kamu adalah asisten AI ramah dalam bahasa Indonesia." },
-                            { role: "user", content: prompt || "Halo" }
-                        ]
-                    });
-
-                    const reply = aiRes?.response || (typeof aiRes === 'string' ? aiRes : JSON.stringify(aiRes));
-                    return Response.json({ response: reply }, { headers: corsHeaders });
-                } catch (aiErr) {
-                    return Response.json({ response: "Error Workers AI: " + aiErr.message }, { headers: corsHeaders });
-                }
+                const aiRes = await env.AI.run("@cf/meta/llama-3-8b-instruct", {
+                    messages: [
+                        { role: "system", content: "Kamu adalah asisten AI yang ramah dalam bahasa Indonesia. Jawab secara unik dan dinamis sesuai pesan pengguna." },
+                        { role: "user", content: prompt || "Halo" }
+                    ]
+                });
+                const reply = aiRes?.response || (typeof aiRes === 'string' ? aiRes : JSON.stringify(aiRes));
+                return Response.json({ response: reply }, { headers: corsHeaders });
             }
 
             if (path === "/api/ai/image" && method === "POST") {
@@ -59,9 +52,9 @@ export default {
                 return new Response(imageBinary, { headers: { ...corsHeaders, "Content-Type": "image/jpeg" } });
             }
 
-            return env.ASSETS.fetch(request);
+            return env.ASSETS ? env.ASSETS.fetch(request) : new Response("Not Found", { status: 404 });
         } catch (err) {
-            return Response.json({ response: "Error Server: " + err.message }, { status: 500, headers: corsHeaders });
+            return Response.json({ response: "Error AI: " + err.message }, { status: 500, headers: corsHeaders });
         }
     }
 };
