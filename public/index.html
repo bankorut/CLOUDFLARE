@@ -23,7 +23,7 @@
                 <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-brand-500 to-amber-500 flex items-center justify-center font-black text-white shadow-lg">
                     <i class="fa-solid fa-bolt"></i>
                 </div>
-                <h1 id="brand-name" class="text-xl font-extrabold bg-gradient-to-r from-white to-gray-400 bg-clip-text text-transparent">App</h1>
+                <h1 id="brand-name" class="text-xl font-extrabold bg-gradient-to-r from-white to-gray-400 bg-clip-text text-transparent">SocialApp</h1>
             </div>
             <div class="flex items-center space-x-3">
                 <button onclick="openModal('ai-modal')" class="flex items-center space-x-2 bg-gray-800 text-orange-400 px-3 py-1.5 rounded-full text-sm border border-orange-500/30">
@@ -31,11 +31,10 @@
                     <span class="hidden sm:inline">AI Studio</span>
                 </button>
 
-                <!-- CONTAINER GOOGLE LOGIN -->
-                <div id="google-auth-container" class="flex items-center">
+                <div id="google-auth-container" class="flex items-center gap-2">
                     <div id="google-btn-slot"></div>
-                    <button id="manual-login-btn" onclick="promptManualLogin()" class="hidden bg-gray-800 hover:bg-gray-700 text-xs px-3 py-1.5 rounded-full border border-gray-700 text-gray-300">
-                        🔑 Login Manual
+                    <button onclick="promptManualLogin()" class="bg-gray-800 hover:bg-gray-700 text-xs px-3 py-1.5 rounded-full border border-gray-700 text-gray-300">
+                        🔑 Login
                     </button>
                 </div>
 
@@ -122,13 +121,9 @@
         document.getElementById("brand-name").innerText = window.location.hostname || "SocialApp";
         let currentUser = JSON.parse(localStorage.getItem('currentUser')) || null;
 
-        // Inisialisasi Google Auth secara eksplisit
         window.onload = function () {
-            if (currentUser) {
-                updateAuthUI();
-            } else {
-                tryInitGoogleAuth();
-            }
+            if (currentUser) updateAuthUI();
+            tryInitGoogleAuth();
             loadPosts();
         };
 
@@ -136,17 +131,13 @@
             if (typeof google !== 'undefined' && google.accounts) {
                 google.accounts.id.initialize({
                     client_id: "121466195081-m7kog8d7833erg7anuc5sjkfdvfru0d7.apps.googleusercontent.com",
-                    callback: handleGoogleLogin,
-                    auto_select: false
+                    callback: handleGoogleLogin
                 });
                 google.accounts.id.renderButton(
                     document.getElementById("google-btn-slot"),
                     { theme: "filled_black", size: "medium", shape: "pill" }
                 );
-            } else {
-                setTimeout(tryInitGoogleAuth, 500);
             }
-            document.getElementById("manual-login-btn").classList.remove("hidden");
         }
 
         function handleGoogleLogin(response) {
@@ -160,13 +151,11 @@
         }
 
         function promptManualLogin() {
-            const email = prompt("Masukkan Email Anda:", "danisvanandi@gmail.com");
+            const email = prompt("Masukkan Email:", "danisvanandi@gmail.com");
             if (!email) return;
             const name = email.split('@')[0];
             currentUser = {
-                id: "user-" + Date.now(),
-                email: email,
-                name: name,
+                id: "user-" + Date.now(), email: email, name: name,
                 picture: "https://api.dicebear.com/7.x/bottts/svg?seed=" + name,
                 role: email === 'danisvanandi@gmail.com' ? 'admin' : 'user'
             };
@@ -205,7 +194,7 @@
                 const posts = await res.json();
                 document.getElementById('posts-feed').innerHTML = posts.map(p => `
                     <div class="bg-gray-900 border border-gray-800 rounded-2xl p-4 space-y-2">
-                        <span class="text-xs text-orange-400 font-semibold">@${p.user_name || 'user'}</span>
+                        <span class="text-xs text-orange-400 font-semibold">@${p.user_name || p.user_id || 'user'}</span>
                         <p class="text-sm text-gray-200">${p.content}</p>
                     </div>
                 `).join('');

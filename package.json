@@ -1,0 +1,7 @@
+{
+  "name": "cloudflare-social-app",
+  "version": "1.0.0",
+  "scripts": {
+    "build": "mkdir -p build && cp -r public/* build/"
+  }
+}
