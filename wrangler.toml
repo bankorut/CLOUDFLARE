@@ -10,7 +10,7 @@ directory = "./public"
 [[d1_databases]]
 binding = "DB"
 database_name = "social-db"
-database_id = "PASTE_D1_DATABASE_ID_DISINI"
+database_id = "null"
 
 # 2. Cloudflare R2 Bucket Binding
 [[r2_buckets]]
