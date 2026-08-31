@@ -33,12 +33,11 @@ export default {
 
             if (path === "/api/ai/chat" && method === "POST") {
                 const { prompt } = await request.json();
-                if (!env.AI) {
-                    return Response.json({ response: "AI Binding belum terhubung di Cloudflare." }, { headers: corsHeaders });
-                }
+                if (!env.AI) return Response.json({ response: "AI Binding belum terhubung." }, { headers: corsHeaders });
+                
                 const aiRes = await env.AI.run("@cf/meta/llama-3.3-70b-instruct-fp8-fast", {
                     messages: [
-                        { role: "system", content: "Kamu adalah asisten AI ramah dalam bahasa Indonesia." },
+                        { role: "system", content: "Kamu adalah asisten AI cerdas dan ramah di aplikasi Cloudflare Social." },
                         { role: "user", content: prompt || "Halo" }
                     ]
                 });
