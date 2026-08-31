@@ -33,23 +33,24 @@ export default {
 
             if (path === "/api/ai/chat" && method === "POST") {
                 const { prompt } = await request.json();
-                let textReply = "Halo! Saya siap membantu Anda.";
+                
+                if (!env.AI) {
+                    return Response.json({ response: "Error: Binding AI belum terhubung di Cloudflare Dashboard." }, { headers: corsHeaders });
+                }
+
                 try {
-                    const aiRes = await env.AI.run("@cf/meta/llama-3-8b-instruct", {
+                    const aiRes = await env.AI.run("@cf/meta/llama-3.1-8b-instruct", {
                         messages: [
-                            { role: "system", content: "Kamu adalah asisten AI yang ramah di aplikasi Cloudflare Social." },
+                            { role: "system", content: "Kamu adalah asisten AI ramah dalam bahasa Indonesia." },
                             { role: "user", content: prompt || "Halo" }
                         ]
                     });
-                    if (aiRes && typeof aiRes === 'object') {
-                        textReply = aiRes.response || aiRes.description || aiRes.text || JSON.stringify(aiRes);
-                    } else if (typeof aiRes === 'string') {
-                        textReply = aiRes;
-                    }
+
+                    const reply = aiRes?.response || (typeof aiRes === 'string' ? aiRes : JSON.stringify(aiRes));
+                    return Response.json({ response: reply }, { headers: corsHeaders });
                 } catch (aiErr) {
-                    textReply = "Error AI: " + aiErr.message;
+                    return Response.json({ response: "Error Workers AI: " + aiErr.message }, { headers: corsHeaders });
                 }
-                return Response.json({ response: textReply }, { headers: corsHeaders });
             }
 
             if (path === "/api/ai/image" && method === "POST") {
