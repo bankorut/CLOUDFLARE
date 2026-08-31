@@ -1,4 +1,4 @@
-name = "cloudflare-social-app"
+name = "cloudflare"
 main = "worker.js"
 compatibility_date = "2024-09-23"
 
@@ -9,13 +9,13 @@ directory = "./public"
 # 1. Cloudflare D1 Database Binding
 [[d1_databases]]
 binding = "DB"
-database_name = "social-db"
+database_name = "cloudflare"
 database_id = "null"
 
 # 2. Cloudflare R2 Bucket Binding
 [[r2_buckets]]
 binding = "BUCKET"
-bucket_name = "social-media-media"
+bucket_name = "cloudflare"
 
 # 3. Cloudflare Workers AI Binding
 [ai]
