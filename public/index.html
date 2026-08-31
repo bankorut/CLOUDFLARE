@@ -207,17 +207,25 @@
             const container = document.getElementById('ai-chat-messages');
             container.innerHTML += `<div class="bg-orange-500/20 text-orange-300 p-3 rounded-xl max-w-[85%] ml-auto">${text}</div>`;
             document.getElementById('ai-input').value = '';
+            container.scrollTop = container.scrollHeight;
 
-            if(text.startsWith('/image ')) {
-                const res = await fetch('/api/ai/image', { method: 'POST', body: JSON.stringify({ prompt: text.replace('/image ','') }) });
-                const blob = await res.blob();
-                container.innerHTML += `<div class="bg-gray-800 p-2 rounded-xl"><img src="${URL.createObjectURL(blob)}" class="rounded-lg w-full"></div>`;
-            } else {
-                const res = await fetch('/api/ai/chat', { method: 'POST', body: JSON.stringify({ prompt: text }) });
-                const data = await res.json();
-                container.innerHTML += `<div class="bg-gray-800 p-3 rounded-xl">${data.response}</div>`;
+            try {
+                if(text.startsWith('/image ')) {
+                    const res = await fetch('/api/ai/image', { method: 'POST', body: JSON.stringify({ prompt: text.replace('/image ','') }) });
+                    const blob = await res.blob();
+                    container.innerHTML += `<div class="bg-gray-800 p-2 rounded-xl max-w-[85%]"><img src="${URL.createObjectURL(blob)}" class="rounded-lg w-full"></div>`;
+                } else {
+                    const res = await fetch('/api/ai/chat', { method: 'POST', body: JSON.stringify({ prompt: text }) });
+                    const data = await res.json();
+                    const replyText = data.response || data.message || data.text || "Halo! Ada yang bisa saya bantu?";
+                    container.innerHTML += `<div class="bg-gray-800 text-gray-300 p-3 rounded-xl max-w-[85%]">${replyText}</div>`;
+                }
+            } catch (err) {
+                container.innerHTML += `<div class="bg-red-900/50 text-red-300 p-3 rounded-xl max-w-[85%]">Gagal terhubung ke AI Worker.</div>`;
             }
+            container.scrollTop = container.scrollHeight;
         }
+
         function setAiInput(val) { document.getElementById('ai-input').value = val; openModal('ai-modal'); }
         function logout() { localStorage.removeItem('currentUser'); location.reload(); }
     </script>
